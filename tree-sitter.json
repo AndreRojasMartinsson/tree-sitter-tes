@@ -5,7 +5,10 @@
       "camelcase": "Smartcode",
       "scope": "source.smartcode",
       "path": ".",
-      "file-types": null,
+      "file-types": [
+        "sc",
+        "smartcode"
+      ],
       "injection-regex": "^smartcode$"
     }
   ],
