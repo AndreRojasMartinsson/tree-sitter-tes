@@ -1,0 +1,33 @@
+{
+  "grammars": [
+    {
+      "name": "smartcode",
+      "camelcase": "Smartcode",
+      "scope": "source.smartcode",
+      "path": ".",
+      "file-types": null,
+      "injection-regex": "^smartcode$"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Smartcode Treesitter Parser (SC)",
+    "authors": [
+      {
+        "name": "RootEntry"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/AndreRojasMartinsson/tree-sitter-smartcode"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}
