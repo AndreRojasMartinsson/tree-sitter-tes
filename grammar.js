@@ -58,7 +58,8 @@ module.exports = grammar({
   rules: {
     // TODO: add the actual grammar rules
     program: ($) => seq(repeat($._root_statement)),
-    _root_statement: ($) => choice($.let_binding, $.out_statement),
+    _root_statement: ($) =>
+      choice($.let_binding, $.out_statement, $.block, $.if_expr, $.while_expr),
 
     let_binding: ($) =>
       seq("let", field("name", $.identifier), $._initializer, ";"),
@@ -69,6 +70,27 @@ module.exports = grammar({
         field("format_str", $.string_literal),
         choice(seq(sepBy(",", $._expression), ";"), ";"),
       ),
+
+    block: ($) => seq("{", repeat($._items), "}", optional(";")),
+
+    _items: ($) =>
+      choice(
+        $.if_expr,
+        $.while_expr,
+        $.let_binding,
+        $.out_statement,
+        seq($._expression, optional(";")),
+      ),
+
+    if_expr: ($) =>
+      seq(
+        "if",
+        field("condition", $._expression),
+        $.block,
+        optional(choice(seq("else", $.if_expr), seq("else", $.block))),
+      ),
+
+    while_expr: ($) => seq("while", field("condition", $._expression), $.block),
 
     // empty_statement: (_) => ";",
 
@@ -96,7 +118,7 @@ module.exports = grammar({
       choice(
         $.primary_expression,
         $.binary_expression,
-        // $.assignment_expression,
+        $.assignment_expression,
         // $.unary_expression,
         // $.update_expression,
         // $.call_expression,
@@ -104,11 +126,19 @@ module.exports = grammar({
         // $.prefix_expression,
       ),
 
+    assignment_expression: ($) =>
+      prec.right(
+        "assign",
+        seq(
+          field("left", choice($.parenthesized_expression, $._lhs_expression)),
+          choice("<>", "+<>", "-<>", "*<>", "/<>", "**<>", "%<>"),
+          field("right", $._expression),
+        ),
+      ),
+
     binary_expression: ($) =>
       choice(
         ...[
-          ["&&", 0],
-          ["||", 1],
           ["!=", 2],
           ["==", 2],
           ["<", 3],
@@ -169,7 +199,7 @@ module.exports = grammar({
 
       return token(decimal_literal);
     },
-    string_literal: () => /"[^"]+"/,
+    string_literal: () => /"[^"]*"/,
   },
 });
 

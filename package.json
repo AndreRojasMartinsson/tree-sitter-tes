@@ -18,6 +18,7 @@
   "files": [
     "grammar.js",
     "src/parser.c",
+    "src/scanner.c",
     "binding.gyp",
     "prebuilds/**",
     "bindings/node/*",

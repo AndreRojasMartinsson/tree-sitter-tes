@@ -1,2 +1,23 @@
-let bind <> 5 + 5;
+let hi <> 5 + 5 * 7 ** (2 / 2);
 
+out "Hello, world" hi, blud;
+
+
+out "Hello, world" blud, hi, ok, 5 + 5, true + 5;
+
+if x + 5 {
+	let a <> 2;
+    
+    a <> 7;
+    a **<> 8;
+} else if x + 2 {
+	let c <> 7;
+} else {
+	let a <> 5;
+}
+
+while x + 5 {
+	let hi <> 7;
+    
+    5
+}

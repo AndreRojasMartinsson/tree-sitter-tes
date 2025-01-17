@@ -8,8 +8,8 @@
 ; (variable_declaration
 ;   (identifier) @variable)
 
-; (assignment_expression
-;   left: (identifier) @function)
+(assignment_expression
+  left: (identifier) @variable)
 
 
 ; (identifier) @variable
@@ -34,23 +34,32 @@
  ";"] @punctuation.delimiter
 
 ["let"
- "out"] @keyword
- ; "if"
- ; "else"] @keyword
+ "out"
+ "if"
+ "while"
+ "else"] @keyword
 
 ["*"
 "/"
 "%"
 "**"
-; ">"
-; "<"
-; "<="
+"**<>"
+"*<>"
+"/<>"
+"+<>"
+"-<>"
+"%<>"
+">"
+"("
+")"
+"<"
+"<="
 ; "&&"
 ; "||"
-; ">="
+">="
 ; "="
-; "=="
-; "!="
+"=="
+"!="
 "+"
 ; "++"
 ; "--"
