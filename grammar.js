@@ -37,8 +37,10 @@ module.exports = grammar({
     $._literal,
   ],
 
+  inline: ($) => [$._type_identifier],
   precedences: ($) => [
     [
+      "call",
       "binary_exp",
       "binary_mul",
       "binary_add",
@@ -52,6 +54,7 @@ module.exports = grammar({
     ["literal"],
     [$.primary_expression],
   ],
+  conflicts: ($) => [[$._expression_no_call, $._expression]],
 
   word: ($) => $.identifier,
 
@@ -59,7 +62,45 @@ module.exports = grammar({
     // TODO: add the actual grammar rules
     program: ($) => seq(repeat($._root_statement)),
     _root_statement: ($) =>
-      choice($.let_binding, $.out_statement, $.block, $.if_expr, $.while_expr),
+      choice(
+        $.let_binding,
+        $.out_statement,
+        $.block,
+        $.if_expr,
+        $.while_expr,
+        $.for_expr,
+        $.function_declaration,
+      ),
+
+    function_declaration: ($) =>
+      seq(
+        field("return_ty", $._type),
+        "func",
+        field("name", $.identifier),
+        field("parameters", $.parameters),
+        field("block", $.block),
+      ),
+
+    _type: ($) =>
+      seq(
+        field("element", choice($._type_identifier, $.primitive_type)),
+        optional(seq("[", "]")),
+      ),
+
+    primitive_type: ($) => choice("uint", "int", "str", "float", $.void),
+    void: (_) => "void",
+
+    parameters: ($) =>
+      seq(
+        "(",
+        choice(
+          $.void,
+          seq(sepBy(",", seq(choice($.parameter, $.void))), optional(",")),
+        ),
+        ")",
+      ),
+    parameter: ($) =>
+      seq(field("type", $._type), ":", field("name", $.identifier)),
 
     let_binding: ($) =>
       seq("let", field("name", $.identifier), $._initializer, ";"),
@@ -92,6 +133,17 @@ module.exports = grammar({
 
     while_expr: ($) => seq("while", field("condition", $._expression), $.block),
 
+    for_expr: ($) =>
+      seq(
+        "for",
+        field("init", $._expression),
+        ",",
+        field("cond", $._expression),
+        ",",
+        field("update", $._expression),
+        $.block,
+      ),
+
     // empty_statement: (_) => ";",
 
     _lhs_expression: ($) => $.identifier,
@@ -121,17 +173,34 @@ module.exports = grammar({
         $.assignment_expression,
         // $.unary_expression,
         // $.update_expression,
-        // $.call_expression,
+        $.call_expression,
         // $.postfix_expression,
         // $.prefix_expression,
       ),
+
+    _expression_no_call: ($) =>
+      choice(
+        $.primary_expression,
+        $.assignment_expression,
+        $.binary_expression,
+      ),
+
+    call_expression: ($) =>
+      prec(
+        9,
+        seq(field("callee", $.identifier), field("arguments", $.arguments)),
+      ),
+
+    arguments: ($) =>
+      seq("(", optional(_list(field("name", $._expression), ",")), ")"),
+    argument: ($) => field("name", $.identifier),
 
     assignment_expression: ($) =>
       prec.right(
         "assign",
         seq(
           field("left", choice($.parenthesized_expression, $._lhs_expression)),
-          choice("<>", "+<>", "-<>", "*<>", "/<>", "**<>", "%<>"),
+          choice("<>", "+<>", "-<>", "*<>", "/<>", "%<>"),
           field("right", $._expression),
         ),
       ),
@@ -145,12 +214,13 @@ module.exports = grammar({
           ["<=", 3],
           [">=", 3],
           [">", 3],
-          ["+", 4],
-          ["-", 4],
-          ["*", 5],
-          ["/", 5],
-          ["%", 5],
-          ["**", 6, "right"],
+          [">>", 4],
+          ["<<", 4],
+          ["+", 5],
+          ["-", 5],
+          ["*", 6],
+          ["/", 6],
+          ["%", 6],
         ].map(([operator, precedence, associativity]) =>
           (associativity === "right" ? prec.right : prec.left)(
             precedence,
@@ -164,7 +234,12 @@ module.exports = grammar({
       ),
 
     primary_expression: ($) =>
-      choice($.identifier, $._literal, $.parenthesized_expression),
+      choice(
+        $.identifier,
+        $._literal,
+        $.parenthesized_expression,
+        $.array_literal,
+      ),
 
     comment: ($) => choice($.line_comment),
 
@@ -178,9 +253,12 @@ module.exports = grammar({
       ),
 
     identifier: () => /[_a-zA-Z][_a-zA-Z0-9]*/,
+    type_identifier: ($) => alias($.identifier, $.type_identifier),
+    _type_identifier: ($) => alias($.identifier, $.type_identifier),
 
     _literal: ($) => choice($.string_literal, $.number_literal),
 
+    array_literal: ($) => seq("[", commaSep(optional($._expression)), "]"),
     number_literal: () => {
       const decimal_digits = /[0-9][0-9_]*/;
       const signed_integer = seq(optional(choice("-", "+")), decimal_digits);

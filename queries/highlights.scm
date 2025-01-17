@@ -1,5 +1,7 @@
 ; Identifier conventions
 ; Assume all caps names are constants
+(type_identifier) @type
+(primitive_type) @type.builtin
 
 (let_binding
   (identifier) @variable)
@@ -7,6 +9,12 @@
 ; (variable_declaration name: (identifier) @function)
 ; (variable_declaration
 ;   (identifier) @variable)
+
+(function_declaration 
+  (identifier) @function)
+
+(call_expression
+ callee: (identifier) @function)
 
 (assignment_expression
   left: (identifier) @variable)
@@ -29,21 +37,32 @@
 ((identifier) @constant
   (#match? @constant "^[A-Z][A-Z0-9_]+$"))
 
+["{"
+ "}"
+ "("
+ ")"
+ "["
+ "]"] @punctuation.bracket
+
+(parameter name: (identifier) @variable.parameter)
+; (argument name: (identifier) @variable.parameter)
+
 [","
  "<>"
+ ":"
  ";"] @punctuation.delimiter
 
 ["let"
  "out"
  "if"
  "while"
+ "for"
+ "func"
  "else"] @keyword
 
 ["*"
 "/"
 "%"
-"**"
-"**<>"
 "*<>"
 "/<>"
 "+<>"
@@ -61,7 +80,7 @@
 "=="
 "!="
 "+"
-; "++"
-; "--"
+"<<"
+">>"
 "-"] @operator
 

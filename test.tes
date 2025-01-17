@@ -1,7 +1,12 @@
 let hi <> 5 + 5 * 7 ** (2 / 2);
 
+int func add(int: a, int: b) {
+  let res <> a + b;
+}
+
 out "Hello, world" hi, blud;
 
+hello(50 + 20);
 
 out "Hello, world" blud, hi, ok, 5 + 5, true + 5;
 
