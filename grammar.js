@@ -1,5 +1,5 @@
 /**
- * @file Smartcode Treesitter Parser (SC)
+ * @file TES Treesitter Parser (tes)
  * @author RootEntry
  * @license MIT
  */
@@ -27,28 +27,18 @@ const _exponent_part = (...delimiters) =>
 const _list = (rule, seperator) => seq(rule, repeat(seq(seperator, rule)));
 
 module.exports = grammar({
-  name: "smartcode",
+  name: "tes",
 
-  extras: ($) => [/\s/, $.line_comment, $.block_comment],
+  extras: ($) => [/\s/, $.line_comment],
 
   supertypes: ($) => [
     $._expression,
     // $._type,
     $._literal,
-    $._declaration_statement,
   ],
 
-  inline: ($) => [
-    $._type_identifier,
-    $._non_special_token,
-    $._declaration_statement,
-    $._reserved_identifier,
-  ],
   precedences: ($) => [
     [
-      "call",
-      $.update_expression,
-      "unary",
       "binary_exp",
       "binary_mul",
       "binary_add",
@@ -57,168 +47,42 @@ module.exports = grammar({
       "binary_equality",
       "logical_and",
       "logical_or",
-      "ternary",
-      // "call",
-      // "postfix",
-      // "prefix",
-      // "unary",
-      // "binary_exp",
-      // "binary_mul",
-      // "binary_add",
-      // "binary_compare",
-      // "binary_relation",
-      // "binary_equality",
-      // "logical_and",
-      // "logical_or",
-      // "ternary",
     ],
     ["assign", $.primary_expression],
-    ["declaration", "literal"],
-    // [$.primary_expression],
+    ["literal"],
+    [$.primary_expression],
   ],
 
-  conflicts: ($) => [
-    // [$.binary_expression, $._initializer],
-    [$._expression_no_call, $._expression],
-    [$._type, $.primary_expression],
-
-    // [$.variable_declaration, $.primary_expression],
-    // [$.block, $.binary_expression],
-    // [$.block, $.update_expression],
-    // [$.return_statement, $.binary_expression],
-    // [$.return_statement, $.update_expression],
-    // [$._initializer, $.update_expression],
-    // [$.binary_expression, $.prefix_expression],
-    // [$.binary_expression, $.unary_expression],
-    // [$.binary_expression, $.postfix_expression],
-  ],
   word: ($) => $.identifier,
 
   rules: {
     // TODO: add the actual grammar rules
-    source_file: ($) => seq(repeat($._root_statement)),
-    _root_statement: ($) => choice($._declaration_statement),
+    program: ($) => seq(repeat($._root_statement)),
+    _root_statement: ($) => choice($.let_binding, $.out_statement),
 
-    _non_special_token: ($) =>
-      choice(
-        $._literal,
-        $.identifier,
-        $.self,
-        alias(
-          $.primitive_type,
-          "'",
-          "fn",
-          "for",
-          "if",
-          "mut",
-          "return",
-          "while",
-        ),
-      ),
+    let_binding: ($) =>
+      seq("let", field("name", $.identifier), $._initializer, ";"),
 
-    empty_statement: (_) => ";",
-
-    _declaration_statement: ($) => choice($._directive, $.function_declaration),
-    // _declaration_statement: ($) => choice($.function_declaration),
-
-    _directive: ($) => choice($.incl_directive, $.pub_directive),
-
-    incl_directive: ($) => seq("@incl", field("path", $.path)),
-
-    path: ($) => /[a-zA-Z_][a-zA-Z0-9_]*(\/[a-zA-Z_][a-zA-Z0-9_]*)*/,
-
-    pub_directive: ($) => seq("@pub", field("name", $.identifier)),
-
-    function_declaration: ($) =>
+    out_statement: ($) =>
       seq(
-        field("returnType", $._type),
-        ":",
-        "fn",
-        field("name", $.identifier),
-        field("parameters", $.parameters),
-        "do",
-        field("body", $.block),
-        "end",
+        "out",
+        field("format_str", $.string_literal),
+        choice(seq(sepBy(",", $._expression), ";"), ";"),
       ),
 
-    parameters: ($) =>
-      seq(
-        "(",
-        choice(
-          $.void,
-          seq(sepBy(",", seq(choice($.parameter, $.void))), optional(",")),
-        ),
-        ")",
-      ),
+    // empty_statement: (_) => ";",
 
-    _type: ($) =>
-      seq(
-        field("element", choice($._type_identifier, $.primitive_type)),
-        optional(seq("[", "]")),
-      ),
+    _lhs_expression: ($) => $.identifier,
 
-    primitive_type: ($) =>
-      choice("uint", "int", "bool", "str", "float", $.void),
-
-    void: (_) => "void",
-
-    parameter: ($) =>
-      seq(field("type", $._type), ":", field("name", $.identifier)),
-
-    block: ($) =>
-      repeat1(
-        choice(
-          $.if_statement,
-          $.for_statement,
-          $.while_statement,
-          $.variable_declaration,
-          $.return_statement,
-          $._expression,
-        ),
-      ),
-
-    if_statement: ($) =>
-      seq(
-        "if",
-        ":",
-        $._expression,
-        "do",
-        $.block,
-        choice(
-          "end",
-          seq("else", $.if_statement),
-          seq("else", ":", $.block, "end"),
-        ),
-      ),
-    for_statement: ($) =>
-      seq(
-        "for",
-        ":",
-        $._expression,
-        ",",
-        $._expression,
-        ",",
-        $._expression,
-        "do",
-        $.block,
-        "end",
-      ),
-    while_statement: ($) =>
-      seq("while", ":", $._expression, "do", $.block, "end"),
-
-    return_statement: ($) => seq("return", $._expression),
-
-    _lhs_expression: ($) => choice($.member_expression, $.identifier),
-
-    assignment_expression: ($) =>
-      prec.right(
-        "assign",
-        seq(
-          field("left", choice($.parenthesized_expression, $._lhs_expression)),
-          "=",
-          field("right", $._expression),
-        ),
-      ),
+    // assignment_expression: ($) =>
+    //   prec.right(
+    //     "assign",
+    //     seq(
+    //       field("left", choice($.parenthesized_expression, $._lhs_expression)),
+    //       "=",
+    //       field("right", $._expression),
+    //     ),
+    //   ),
 
     parenthesized_expression: ($) => seq("(", $._expression, ")"),
 
@@ -226,50 +90,19 @@ module.exports = grammar({
 
     _sequence_expression: ($) => prec.right(commaSep1($._expression)),
 
-    variable_declaration: ($) =>
-      seq(
-        field("returnType", $._type),
-        ":",
-        optional(field("mut", "mut")),
-        field("name", $.identifier),
-        optional($._initializer),
-      ),
-
-    _initializer: ($) => seq("=", field("value", $._expression)),
+    _initializer: ($) => seq("<>", field("value", $._expression)),
 
     _expression: ($) =>
       choice(
         $.primary_expression,
-        $.assignment_expression,
-        $.unary_expression,
         $.binary_expression,
-        $.update_expression,
-        $.call_expression,
+        // $.assignment_expression,
+        // $.unary_expression,
+        // $.update_expression,
+        // $.call_expression,
         // $.postfix_expression,
         // $.prefix_expression,
       ),
-
-    _expression_no_call: ($) =>
-      choice(
-        $.primary_expression,
-        $.assignment_expression,
-        $.unary_expression,
-        $.binary_expression,
-        $.update_expression,
-      ),
-
-    call_expression: ($) =>
-      prec(
-        9,
-        seq(
-          field("callee", $.primary_expression),
-          field("arguments", $.arguments),
-        ),
-      ),
-
-    arguments: ($) =>
-      seq("(", optional(_list(field("name", $._expression), ",")), ")"),
-    argument: ($) => field("name", $.identifier),
 
     binary_expression: ($) =>
       choice(
@@ -287,7 +120,7 @@ module.exports = grammar({
           ["*", 5],
           ["/", 5],
           ["%", 5],
-          ["^", 6, "right"],
+          ["**", 6, "right"],
         ].map(([operator, precedence, associativity]) =>
           (associativity === "right" ? prec.right : prec.left)(
             precedence,
@@ -300,135 +133,23 @@ module.exports = grammar({
         ),
       ),
 
-    // binary_expression: ($) =>
-    //   choice(
-    //     prec.right(8, seq($._expression, choice("++", "--"))),
-    //     prec.right(7, seq(choice("!", "-", "++", "--"), $._expression)),
-    //     prec.right(6, seq($._expression, "^", $._expression)),
-    //     prec.left(5, seq($._expression, choice("*", "/", "%"), $._expression)),
-    //     prec.left(4, seq($._expression, choice("+", "-"), $._expression)),
-    //     prec.left(
-    //       3,
-    //       seq($._expression, choice("<", "<=", ">=", ">"), $._expression),
-    //     ),
-    //     prec.left(2, seq($._expression, choice("==", "!="), $._expression)),
-    //     prec.left(1, seq($._expression, "&&", $._expression)),
-    //     prec.left(0, seq($._expression, "||", $._expression)),
-    //   ),
-
-    // binary_expression: ($) =>
-    //   seq(
-    //     $._expression,
-    //     field(
-    //       "operator",
-    //       choice(
-    //         "+",
-    //         "-",
-    //         "*",
-    //         "/",
-    //         "%",
-    //         "^",
-    //         "&&",
-    //         "||",
-    //         "==",
-    //         "!=",
-    //         ">=",
-    //         ">",
-    //         "<",
-    //         "<=",
-    //       ),
-    //     ),
-    //     $._expression,
-    //   ),
-
-    unary_expression: ($) =>
-      prec.left(
-        7,
-        seq(
-          field("operator", choice("-", "!")),
-          field("operand", $._expression),
-        ),
-      ),
-
-    update_expression: ($) =>
-      prec.left(
-        8,
-        choice(
-          seq(
-            field("operand", $._expression_no_call),
-            field("operator", choice("++", "--")),
-          ),
-          seq(
-            field("operator", choice("++", "--")),
-            field("operand", $._expression_no_call),
-          ),
-        ),
-      ),
-
-    // prefix_expression: ($) =>
-    //   prec.right(
-    //     "prefix",
-    //     seq(
-    //       field("operator", choice("++", "--")),
-    //       field("operand", $._expression),
-    //     ),
-    //   ),
-    //
-    // postfix_expression: ($) =>
-    //   prec.left(
-    //     "postfix",
-    //     seq(
-    //       field("operand", $._expression),
-    //       field("operator", choice("++", "--")),
-    //     ),
-    //   ),
-
     primary_expression: ($) =>
-      choice(
-        $.member_expression,
-        $.identifier,
-        $._literal,
-        $.parenthesized_expression,
-        // $.call_expression,
-      ),
+      choice($.identifier, $._literal, $.parenthesized_expression),
 
-    member_expression: ($) =>
-      prec(
-        10,
-        seq(
-          field("object", $._expression),
-          ":",
-          field("property", alias($.identifier, $.property_identifier)),
-        ),
-      ),
+    comment: ($) => choice($.line_comment),
 
-    comment: ($) => choice($.line_comment, $.block_comment),
-
-    block_comment: (_) => /\/\*[^*]+\*\//,
     line_comment: (_) =>
       seq(
-        "//",
+        "#",
         choice(
-          seq(token.immediate(prec(2, /\/\//)), /.*/),
+          seq(token.immediate(prec(2, /#/)), /.*/),
           token.immediate(prec(1, /.*/)),
         ),
       ),
 
     identifier: () => /[_a-zA-Z][_a-zA-Z0-9]*/,
-    type_identifier: ($) => alias($.identifier, $.type_identifier),
-    _type_identifier: ($) => alias($.identifier, $.type_identifier),
 
-    _reserved_identifier: ($) => alias(choice("default"), $.identifier),
-
-    _literal: ($) =>
-      choice(
-        $.string_literal,
-        $.number_literal,
-        $.boolean_literal,
-        $.array_literal,
-      ),
-
-    array_literal: ($) => seq("[", commaSep(optional($._expression)), "]"),
+    _literal: ($) => choice($.string_literal, $.number_literal),
 
     number_literal: () => {
       const decimal_digits = /[0-9][0-9_]*/;
@@ -449,9 +170,6 @@ module.exports = grammar({
       return token(decimal_literal);
     },
     string_literal: () => /"[^"]+"/,
-    boolean_literal: () => choice("true", "false"),
-
-    self: (_) => "self",
   },
 });
 

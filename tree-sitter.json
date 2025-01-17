@@ -1,28 +1,25 @@
 {
   "grammars": [
     {
-      "name": "smartcode",
-      "camelcase": "Smartcode",
-      "scope": "source.smartcode",
+      "name": "TES",
+      "camelcase": "Tes",
+      "scope": "source.tes",
       "path": ".",
-      "file-types": [
-        "sc",
-        "smartcode"
-      ],
-      "injection-regex": "^smartcode$"
+      "file-types": ["tes"],
+      "injection-regex": "^tes$"
     }
   ],
   "metadata": {
     "version": "0.1.0",
     "license": "MIT",
-    "description": "Smartcode Treesitter Parser (SC)",
+    "description": "TES Treesitter Parser (SC)",
     "authors": [
       {
         "name": "RootEntry"
       }
     ],
     "links": {
-      "repository": "https://github.com/AndreRojasMartinsson/tree-sitter-smartcode"
+      "repository": "https://github.com/AndreRojasMartinsson/tree-sitter-tes"
     }
   },
   "bindings": {

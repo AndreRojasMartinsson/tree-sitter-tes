@@ -1,8 +1,8 @@
 {
-  "name": "tree-sitter-smartcode",
+  "name": "tree-sitter-tes",
   "version": "0.1.0",
-  "description": "Smartcode Treesitter Parser (SC)",
-  "repository": "github:tree-sitter/tree-sitter-smartcode",
+  "description": "TES Treesitter Parser (SC)",
+  "repository": "https://github.com/AndreRojasMartinsson/tree-sitter-tes.git",
   "license": "MIT",
   "author": {
     "name": "RootEntry"
@@ -13,7 +13,7 @@
     "incremental",
     "parsing",
     "tree-sitter",
-    "smartcode"
+    "tes"
   ],
   "files": [
     "grammar.js",
@@ -49,11 +49,10 @@
   },
   "tree-sitter": [
     {
-      "scope": "source.smartcode",
-      "injection-regex": "^smartcode$",
+      "scope": "source.tes",
+      "injection-regex": "^tes$",
       "file-types": [
-        "sc",
-        "smartcode"
+        "tes"
       ]
     }
   ],
