@@ -29,36 +29,30 @@
 ((identifier) @constant
   (#match? @constant "^[A-Z][A-Z0-9_]+$"))
 
-["("
- ")"
- "["
- "]"] @punctuation.bracket
-
-[":"
- ","
+[","
  "<>"
  ";"] @punctuation.delimiter
 
 ["let"
- "out"
- "if"
- "else"] @keyword
+ "out"] @keyword
+ ; "if"
+ ; "else"] @keyword
 
 ["*"
 "/"
 "%"
 "**"
-">"
-"<"
-"<="
-"&&"
-"||"
-">="
-"="
-"=="
-"!="
+; ">"
+; "<"
+; "<="
+; "&&"
+; "||"
+; ">="
+; "="
+; "=="
+; "!="
 "+"
-"++"
-"--"
+; "++"
+; "--"
 "-"] @operator
 
