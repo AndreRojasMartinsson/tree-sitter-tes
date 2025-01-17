@@ -5,6 +5,7 @@
       "camelcase": "Tes",
       "scope": "source.tes",
       "highlights": "./queries/highlights.scm",
+      "locals": "./queries/locals.scm",
       "path": ".",
       "file-types": ["tes"],
       "injection-regex": "^tes$"
