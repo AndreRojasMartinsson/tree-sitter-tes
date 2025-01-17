@@ -1,7 +1,7 @@
 {
   "name": "tree-sitter-tes",
   "version": "0.1.0",
-  "description": "TES Treesitter Parser (SC)",
+  "description": "TES Treesitter Parser (tes)",
   "repository": "https://github.com/AndreRojasMartinsson/tree-sitter-tes.git",
   "license": "MIT",
   "author": {
@@ -17,6 +17,7 @@
   ],
   "files": [
     "grammar.js",
+    "src/parser.c",
     "binding.gyp",
     "prebuilds/**",
     "bindings/node/*",
