@@ -123,6 +123,10 @@
             "named": false
           },
           {
+            "type": "&&",
+            "named": false
+          },
+          {
             "type": "*",
             "named": false
           },
@@ -165,6 +169,10 @@
           {
             "type": ">>",
             "named": false
+          },
+          {
+            "type": "||",
+            "named": false
           }
         ]
       },
@@ -190,6 +198,10 @@
       "types": [
         {
           "type": "_expression",
+          "named": true
+        },
+        {
+          "type": "for_expr",
           "named": true
         },
         {
@@ -328,6 +340,16 @@
           {
             "type": "parameters",
             "named": true
+          }
+        ]
+      },
+      "public": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "pub",
+            "named": false
           }
         ]
       },
@@ -653,6 +675,10 @@
     "named": false
   },
   {
+    "type": "&&",
+    "named": false
+  },
+  {
     "type": "(",
     "named": false
   },
@@ -745,6 +771,10 @@
     "named": false
   },
   {
+    "type": "char",
+    "named": false
+  },
+  {
     "type": "else",
     "named": false
   },
@@ -785,6 +815,10 @@
     "named": false
   },
   {
+    "type": "pub",
+    "named": false
+  },
+  {
     "type": "str",
     "named": false
   },
@@ -810,6 +844,10 @@
   },
   {
     "type": "{",
+    "named": false
+  },
+  {
+    "type": "||",
     "named": false
   },
   {

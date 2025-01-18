@@ -6,10 +6,6 @@
 (let_binding
   (identifier) @variable)
 
-; (variable_declaration name: (identifier) @function)
-; (variable_declaration
-;   (identifier) @variable)
-
 (function_declaration 
   (identifier) @function)
 
@@ -58,6 +54,7 @@
  "while"
  "for"
  "func"
+ "pub"
  "else"] @keyword
 
 ["*"
@@ -73,10 +70,9 @@
 ")"
 "<"
 "<="
-; "&&"
-; "||"
+"&&"
+"||"
 ">="
-; "="
 "=="
 "!="
 "+"

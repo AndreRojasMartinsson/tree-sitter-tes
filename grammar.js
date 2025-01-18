@@ -75,6 +75,7 @@ module.exports = grammar({
     function_declaration: ($) =>
       seq(
         field("return_ty", $._type),
+        optional(field("public", "pub")),
         "func",
         field("name", $.identifier),
         field("parameters", $.parameters),
@@ -87,7 +88,8 @@ module.exports = grammar({
         optional(seq("[", "]")),
       ),
 
-    primitive_type: ($) => choice("uint", "int", "str", "float", $.void),
+    primitive_type: ($) =>
+      choice("uint", "int", "str", "float", "char", $.void),
     void: (_) => "void",
 
     parameters: ($) =>
@@ -99,6 +101,7 @@ module.exports = grammar({
         ),
         ")",
       ),
+
     parameter: ($) =>
       seq(field("type", $._type), ":", field("name", $.identifier)),
 
@@ -118,6 +121,7 @@ module.exports = grammar({
       choice(
         $.if_expr,
         $.while_expr,
+        $.for_expr,
         $.let_binding,
         $.out_statement,
         seq($._expression, optional(";")),
@@ -208,19 +212,21 @@ module.exports = grammar({
     binary_expression: ($) =>
       choice(
         ...[
-          ["!=", 2],
-          ["==", 2],
-          ["<", 3],
-          ["<=", 3],
-          [">=", 3],
-          [">", 3],
-          [">>", 4],
-          ["<<", 4],
-          ["+", 5],
-          ["-", 5],
-          ["*", 6],
-          ["/", 6],
-          ["%", 6],
+          ["||", 1],
+          ["&&", 2],
+          ["!=", 3],
+          ["==", 3],
+          ["<", 4],
+          ["<=", 4],
+          [">=", 4],
+          [">", 4],
+          [">>", 5],
+          ["<<", 5],
+          ["+", 6],
+          ["-", 6],
+          ["*", 7],
+          ["/", 7],
+          ["%", 7],
         ].map(([operator, precedence, associativity]) =>
           (associativity === "right" ? prec.right : prec.left)(
             precedence,
